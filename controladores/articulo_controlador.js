@@ -15,10 +15,14 @@ const curso = (req, res) => {
     .json({ curso: "Curso 1", precio: 20, descripcion: "Curso de prueba" });
 };
 
+
+
+
 // CREAR ARTICULO
 const crear = (req, res) => {
   // recoger parametros por post a guardar
   let parametros = req.body;
+  console.log(parametros)
 
   // validar datos (validator)
   try {
@@ -27,6 +31,7 @@ const crear = (req, res) => {
     return res.status(400).json({
       status: "error",
       mensaje: "Error creando artículo. Faltan datos por enviar",
+      error: error.message,
     });
   }
   // crear el objeto a guardar
@@ -50,9 +55,14 @@ const crear = (req, res) => {
       return res.status(400).json({
         status: "error",
         mensaje: "El artículo no se ha guardado",
+        error: err,
       });
     });
 };
+
+
+
+
 
 // LISTAR ARTICULOS
 const listar = async (req, res) => {
@@ -233,16 +243,16 @@ const imagen = (req, res) => {
   let fichero = req.params.fichero;
   let ruta_fisica = "./imagenes/articulos/" + fichero;
 
-  fs.stat(ruta_fisica, (error, existe) =>{
-    if (existe){
+  fs.stat(ruta_fisica, (error, existe) => {
+    if (existe) {
       return res.sendFile(path.resolve(ruta_fisica));
-    }else{
+    } else {
       return res.status(404).json({
         status: "error",
-        mensaje: "La imagen no existe"
-      })
+        mensaje: "La imagen no existe",
+      });
     }
-  })
+  });
 };
 
 module.exports = {
