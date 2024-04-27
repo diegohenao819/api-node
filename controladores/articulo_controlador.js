@@ -15,14 +15,11 @@ const curso = (req, res) => {
     .json({ curso: "Curso 1", precio: 20, descripcion: "Curso de prueba" });
 };
 
-
-
-
 // CREAR ARTICULO
 const crear = (req, res) => {
   // recoger parametros por post a guardar
   let parametros = req.body;
-  console.log(parametros)
+  console.log(parametros);
 
   // validar datos (validator)
   try {
@@ -59,10 +56,6 @@ const crear = (req, res) => {
       });
     });
 };
-
-
-
-
 
 // LISTAR ARTICULOS
 const listar = async (req, res) => {
@@ -165,6 +158,7 @@ const editar = async (req, res) => {
   }
 };
 
+// SUBIR IMAGEN
 const subir = async (req, res) => {
   // Configurar Multer
 
@@ -233,9 +227,12 @@ const subir = async (req, res) => {
       return res.status(500).json({
         status: "error",
         mensaje: "Error al guardar la imagen del artículo",
+        error: err,
       });
     }
   }
+
+  
 };
 
 // MOSTRAR IMAGEN

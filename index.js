@@ -10,7 +10,9 @@ conexion();
 const app = express();
 
 // configurar el cors
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 // convertir el body a json
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
