@@ -42,7 +42,7 @@ router.post("/upload", (req, res) => {
           res.send("Imagen guardada");
         })
         .catch((err) => {
-          console.log(err);
+          return (err);
         })
     }
 
