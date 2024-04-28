@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const fs = require("fs");
 const ImageModel = require("../modelos/image.model");
 
 // MULTER
 const Storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads');
+        const uploadDir = 'uploads';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+        }
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
