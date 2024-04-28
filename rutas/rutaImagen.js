@@ -6,7 +6,7 @@ const ImageModel = require("../modelos/image.model");
 // MULTER
 const Storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '/path/to/writable/directory');
+        cb(null, 'uploads');
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
