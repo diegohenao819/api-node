@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // rutas
 const rutas_articulo = require("./rutas/articulo_rutas");
-const rutaImagen = require("./rutas/image.rutas");
+const rutaImagen = require("./rutas/rutaImagen");
 
 // Cargo Las rutas
 app.use("/api", rutas_articulo);
