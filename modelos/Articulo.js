@@ -15,7 +15,8 @@ const ArticuloSchema = Schema({
     default: Date.now,
   },
   imagen: {
-    type: String,
+    type: Buffer,
+    contentType: String,
     default: "default.png",
   },
 });
