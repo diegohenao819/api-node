@@ -19,9 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // rutas
 const rutas_articulo = require("./rutas/articulo_rutas");
+const rutaImagen = require("./rutas/image.rutas");
 
 // Cargo Las rutas
 app.use("/api", rutas_articulo);
+app.use("/api", rutaImagen);
 
 app.get("/probando", (req, res) =>
   res.status(200).json({
