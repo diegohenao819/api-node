@@ -13,7 +13,7 @@ const app = express();
 
 
 app.use(cors({
-  origin: 'https://blogreact-omljrajcz-diego-alejandro-henao-guarins-projects.vercel.app/articulos'
+  origin: '*'
 }));
 // convertir el body a json
 app.use(express.json());
