@@ -24,7 +24,7 @@ const upload = multer({ storage: storage,  fileFilter: fileFilter }).single('fil
 router.get("/rutaPrueba", articuloControlador.prueba);
 router.get("/curso", articuloControlador.curso);
 router.post("/crear", upload, articuloControlador.crear);
-router.get("/articulos/:ultimos?", articuloControlador.listar);
+router.get("/articulos", articuloControlador.listar);
 router.get("/articulo/:id", articuloControlador.uno);
 router.delete("/articulo/:id", articuloControlador.borrar);
 router.put("/articulo/:id", articuloControlador.editar);
