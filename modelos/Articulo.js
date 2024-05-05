@@ -14,10 +14,11 @@ const ArticuloSchema = Schema({
     type: Date,
     default: Date.now,
   },
-  imagen: {
-    type: Buffer,
+
+  image: {
+    data: Buffer,
     contentType: String,
-    default: "default.png",
+    // default: "default.png"
   },
 });
 

@@ -1,5 +1,4 @@
-const fs = require("fs");
-const path = require("path");
+
 const Articulo = require("../modelos/Articulo");
 const validarArticulo = require("../helpers/validar");
 
@@ -15,47 +14,62 @@ const curso = (req, res) => {
     .json({ curso: "Curso 1", precio: 20, descripcion: "Curso de prueba" });
 };
 
+
+
+
+
 // CREAR ARTICULO
 const crear = (req, res) => {
-  // recoger parametros por post a guardar
-  let parametros = req.body;
-  console.log(parametros);
+  // Accessing text data
+  const { titulo, contenido } = req.body;
 
-  // validar datos (validator)
+  // Accessing file data, if available
+  const file = req.file; // Assumes that Multer middleware is named 'file'
+
+  // Validate data
   try {
-    validarArticulo(parametros);
+    validarArticulo({ titulo, contenido });
   } catch (error) {
     return res.status(400).json({
       status: "error",
-      mensaje: "Error creando artículo. Faltan datos por enviar",
-      error: error.message,
+      mensaje: "Validation failed (desde crear): " + error.message,
     });
   }
-  // crear el objeto a guardar
-  const articulo = new Articulo(parametros);
 
-  // Asignar valores a objeto basado en los valores del post
+  // Create the article object with file data if available
+  const articulo = new Articulo({
+    titulo,
+    contenido,
+    image: file ? {  // Only add image data if file is uploaded
+      data: file.buffer,
+      contentType: file.mimetype
+    } : {}
+  });
 
-  // Guardar el artículo en la base de datos
-  articulo
-    .save()
+  // Save the article to the database
+  articulo.save()
     .then((articuloGuardado) => {
-      // Devolver una respuesta exitosa
+      // Respond with success
       return res.status(200).json({
-        mensaje: "Creando artículo",
+        mensaje: "Artículo creado con éxito",
         articulo: articuloGuardado,
-        parametros,
       });
     })
     .catch((err) => {
-      // Manejar el error
+      // Handle saving error
       return res.status(400).json({
         status: "error",
-        mensaje: "El artículo no se ha guardado",
-        error: err,
+        mensaje: "El artículo no se ha guardado (desde crear)",
+        error: err.message,
       });
     });
 };
+
+
+
+
+
+
 
 // LISTAR ARTICULOS
 const listar = async (req, res) => {
@@ -125,6 +139,8 @@ const borrar = async (req, res) => {
   }
 };
 
+
+
 // Editar articulo
 const editar = async (req, res) => {
   let articuloId = req.params.id;
@@ -158,99 +174,66 @@ const editar = async (req, res) => {
   }
 };
 
+
+
+
+
 // SUBIR IMAGEN
 const subir = async (req, res) => {
-  // Configurar Multer
-
-  // Recoger el fichero de imagen subido
-  if (!req.file) {
-    return res.status(400).json({
-      status: "error",
-      mensaje: "No se ha subido ninguna imagen",
-    });
+  const file = req.file;
+  if (!file) {
+      return res.status(400).send('No file uploaded.');
   }
 
-  // Nombre del archivo
-  let archivo = req.file.originalname;
+  try {
+      const id = req.params.id;
+      const articulo = await Articulo.findById(id);
 
-  // Extensión del archivo
-  let archivo_split = archivo.split(".");
-  let archivo_extension = archivo_split[1];
-
-  // Comprobar extensión de imagen
-  if (
-    archivo_extension != "png" &&
-    archivo_extension != "jpg" &&
-    archivo_extension != "jpeg" &&
-    archivo_extension != "gif"
-  ) {
-    try {
-      // Borrar el archivo subido cuando no es extensión válida
-      await fs.promises.unlink(req.file.path);
-      return res.status(400).json({
-        status: "error",
-        mensaje: "La extensión del archivo no es válida",
-      });
-    } catch (err) {
-      // Handle error during file deletion
-      return res.status(500).json({
-        status: "error",
-        mensaje: "Error al eliminar el archivo no válido",
-      });
-    }
-  } else {
-    // Si todo es válido, guardar el artículo
-    let id = req.params.id;
-
-    try {
-      const articuloActualizado = await Articulo.findOneAndUpdate(
-        { _id: id },
-        { imagen: req.file.filename },
-        { new: true }
-      );
-
-      if (!articuloActualizado) {
-        return res.status(404).json({
-          status: "error",
-          mensaje: "Artículo no encontrado",
-        });
+      if (!articulo) {
+          return res.status(404).send('Article not found.');
       }
 
-      return res.status(200).json({
-        status: "success",
-        files: req.file,
-        articuloActualizado,
-        fichero: req.file,
-      });
-    } catch (err) {
-      // Handle error during database operation
-      return res.status(500).json({
-        status: "error",
-        mensaje: "Error al guardar la imagen del artículo",
-        error: err,
-      });
-    }
-  }
+      // Update the article with the image data
+      articulo.image = {
+          data: file.buffer,
+          contentType: file.mimetype // This should capture the file type like 'image/jpeg'
+      };
 
-  
+      await articulo.save(); // Saving the article with the updated image
+      res.send('File uploaded and saved successfully.');
+
+  } catch (err) {
+      res.status(500).send('Server error: ' + err.message);
+  }
 };
+
 
 // MOSTRAR IMAGEN
-const imagen = (req, res) => {
-  let fichero = req.params.fichero;
-  let ruta_fisica = "./imagenes/articulos/" + fichero;
+const imagen = async (req, res) => {
+  let id = req.params.id;
 
-  fs.stat(ruta_fisica, (error, existe) => {
-    if (existe) {
-      return res.sendFile(path.resolve(ruta_fisica));
-    } else {
+  try {
+    const articulo = await Articulo.findById(id);
+
+    if (!articulo || !articulo.image || !articulo.image.data) {
       return res.status(404).json({
         status: "error",
-        mensaje: "La imagen no existe",
+        mensaje: "La imagen no existe o el artículo no tiene imagen."
       });
     }
-  });
+
+    // Set the content-type of the response
+    res.contentType(articulo.image.contentType);
+    // Send the image data as a response
+    return res.send(articulo.image.data);
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      mensaje: "Error al buscar la imagen"
+    });
+  }
 };
+
 
 module.exports = {
   prueba,

@@ -6,7 +6,7 @@ const validarArticulo = (parametros) => {
   let validar_contenido = !validator.isEmpty(parametros.contenido);
 
   if (!validar_titulo || !validar_contenido) {
-    throw new Error("Título o contenido vacíos o no válidos.");
+    throw new Error("Título o contenido vacíos o no válidos. Mensaje desde validar.js");
   }
 }
 
