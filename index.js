@@ -10,8 +10,10 @@ conexion();
 const app = express();
 
 // configurar el cors
+
+
 app.use(cors({
-  origin: '*'
+  origin: 'https://articulosreact-git-main-diego-alejandro-henao-guarins-projects.vercel.app'
 }));
 // convertir el body a json
 app.use(express.json());
